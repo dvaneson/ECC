@@ -6,13 +6,21 @@
 */
 
 #include <stdio.h>
+#include <math.h>
 #include "ecc.h"
 
 bool PointEqual(struct point* P1, struct point* P2) {
-    return false;
+    return P1->x == P2->x && P1->y == P2->y;
 }
 
 struct point* PointAdd(struct point* P1, struct point* P2, struct e_curve* E) {
+    int s;
+    if (!PointEqual(P1, P2))
+        s = (P2->y - P1->y) / (P2->x - P1->x) % E->p;
+    else
+        s = (3 * P1->x * P1->x + E->a) / (2 * P1->y) % E->p;
+
+    printf("s = %d", s);
     return NULL;
 }
 

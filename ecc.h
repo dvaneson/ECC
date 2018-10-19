@@ -9,14 +9,11 @@
 #include <stdbool.h>
 
 struct e_curve {
-    int p;
-    int a;
-    int b;
+    int p, a, b;
 };
 
 struct point {
-    int x;
-    int y;
+    int x, y;
 };
 
 bool PointEqual(struct point*, struct point *);
