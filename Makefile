@@ -1,13 +1,27 @@
+CC = gcc
 
-CFLAGS = -g -Wall -ansi -pedantic -O0
+all: tools.a tools.o ecc.a ecc.o test_ecc.exe
 
-all: build
+tools.a: tools.o
+	ar rcs $@ $^
 
-build: test_ecc.c ecc.h ecc.c
-	gcc $(CFLAGS) -o prog.exe test_ecc.c ecc.h ecc.c
+tools.o: tools.c  tools.h
+	$(CC) -c -o $@ $< -lm
+
+ecc.a: ecc.o tools.o
+	ar rcs $@ $^
+
+ecc.o: ecc.c  ecc.h
+	$(CC) -c -o $@ $< -lm
+
+test_ecc.exe: test_ecc.o ecc.h ecc.a
+	$(CC) $^ -o $@ -lm
+
+test_ecc.o: test_ecc.c tools.h ecc.h
+	$(CC) -c $< -o $@ -lm
 
 clean:
-	rm -f *.o ecc
+	rm -f *.o *.a core
 
-run: build
-	./prog.exe
+run: all
+	./test_ecc.exe
