@@ -7,15 +7,25 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
-struct e_curve {
+#include "tools.h"
+
+typedef struct {
     int p, a, b;
-};
+} ecurve;
 
-struct point {
+typedef struct{
     int x, y;
-};
+    bool at_inf;    // Flag to signify if this is a point at infinity
+} point;
 
-bool PointEqual(struct point*, struct point *);
-struct point* PointAdd(struct point*, struct point*, struct e_curve*);
-struct point* DoubleAndAdd(struct point*, struct e_curve*, int);
+int mod(int, int);
+int mod_inverse(int, int);
+
+bool point_equal(point *, point *);
+bool point_inverse(point *, point *, int);
+void print_point_sum(point *, point *, point *);
+
+void point_add(point *, point *, point *, ecurve *);
+void double_and_add(point *, point *, ecurve *, int);
