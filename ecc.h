@@ -16,7 +16,7 @@ typedef struct {
 } ecurve;
 
 typedef struct{
-    int x, y;
+    int x, y;       // Coordinates for the point
     bool at_inf;    // Flag to signify if this is a point at infinity
 } point;
 
@@ -25,7 +25,9 @@ int mod_inverse(int, int);
 
 bool point_equal(point *, point *);
 bool point_inverse(point *, point *, int);
-void print_point_sum(point *, point *, point *);
+char* point_str(point *);
 
 void point_add(point *, point *, point *, ecurve *);
 void double_and_add(point *, point *, ecurve *, int);
+
+char* itoa(int, char *, int);

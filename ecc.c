@@ -40,42 +40,34 @@ bool point_inverse(point *p1, point *p2, int mod) {
     return p1->x == p2->x && p1->y == (mod - p2->y);
 }
 
-void print_point_sum(point *p1, point *p2, point *sum) {
-    char *p1_str, *p2_str, *sum_str;
-    if (p1->at_inf)
-        asprintf(&p1_str, "Inf");
-    else
-        asprintf(&p1_str, "(%d, %d)", p1->x, p1->y);
+void point_copy(point *copy, point *src) {
+    copy->x = src->x;
+    copy->y = src->y;
+    copy->at_inf = src->at_inf;
+}
 
-    if (p2->at_inf)
-        asprintf(&p2_str, "Inf");
+char* point_str(point *P) {
+    char *str;
+    if (P->at_inf)
+        asprintf(&str, "Inf");
     else
-        asprintf(&p2_str, "(%d, %d)", p2->x, p2->y);
+        asprintf(&str, "(%d, %d)", P->x, P->y);
 
-    if (sum->at_inf)
-        asprintf(&sum_str, "Inf");
-    else
-        asprintf(&sum_str, "(%d, %d)", sum->x, sum->y);
-
-    printf("\t%s + %s = %s\n", p1_str, p2_str, sum_str);
+    return str;
 }
 
 void point_add(point *p1, point *p2, point *sum, ecurve *E) {
-    int s;
+    int s, x, y;
 
     // Testing for "point at infinity" and point inverses
     if (p1->at_inf && p2->at_inf){
         sum->at_inf = true;
         return;
     } else if (p1->at_inf) {
-        sum->x = p2->x;
-        sum->y = p2->y;
-        sum->at_inf = false;
+        point_copy(sum, p2);
         return;
     } else if (p2->at_inf) {
-        sum->x = p1->x;
-        sum->y = p1->y;
-        sum->at_inf = false;
+        point_copy(sum, p1);
         return;
     } else if (point_inverse(p1, p2, E->p)) {
         sum->at_inf = true;
@@ -89,11 +81,55 @@ void point_add(point *p1, point *p2, point *sum, ecurve *E) {
         s = (3 * p1->x * p1->x + E->a) * mod_inverse((2 * p1->y), E->p);
 
     s = mod(s, E->p);
-    sum->x = mod((s * s) - p1->x - p2->x, E->p);
-    sum->y = mod(s * (p1->x - sum->x) - p1->y, E->p);
+    x = mod((s * s) - p1->x - p2->x, E->p);
+    y = mod(s * (p1->x - x) - p1->y, E->p);
+
+    sum->x = x;
+    sum->y = y;
     sum->at_inf = false;
 }
 
-void double_and_add(point *P, point *T, ecurve *E, int d) {
-    return;
+void double_and_add(point *P, point *sum, ecurve *E, int num) {
+    char buffer[65];
+    itoa(num, buffer, 2);
+    point_copy(sum, P);
+
+    int i = 1;
+    // printf("\t\tsum = %s\n", point_str(sum));
+    while (buffer[i] != '\0') {
+        point_add(sum, sum, sum, E);
+        if (buffer[i] == '1')
+            point_add(P, sum, sum, E);
+        // printf("\t\tsum = %s\n", point_str(sum));
+        ++i;
+    }
+}
+
+/**
+ * C++ version 0.4 char* style "itoa":
+ * Written by Lukás Chmela
+ * Released under GPLv3.
+ */
+char* itoa(int value, char* result, int base) {
+    // check that the base if valid
+    if (base < 2 || base > 36) { *result = '\0'; return result; }
+
+    char* ptr = result, *ptr1 = result, tmp_char;
+    int tmp_value;
+
+    do {
+        tmp_value = value;
+        value /= base;
+        *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
+    } while ( value );
+
+    // Apply negative sign
+    if (tmp_value < 0) *ptr++ = '-';
+    *ptr-- = '\0';
+    while(ptr1 < ptr) {
+        tmp_char = *ptr;
+        *ptr--= *ptr1;
+        *ptr1++ = tmp_char;
+    }
+    return result;
 }
