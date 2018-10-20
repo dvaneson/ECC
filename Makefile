@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc -g
 
 all: tools.a tools.o ecc.a ecc.o test_ecc.exe
 
@@ -8,7 +8,7 @@ tools.a: tools.o
 tools.o: tools.c  tools.h
 	$(CC) -c -o $@ $< -lm
 
-ecc.a: ecc.o tools.o
+ecc.a: ecc.o
 	ar rcs $@ $^
 
 ecc.o: ecc.c  ecc.h

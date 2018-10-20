@@ -9,17 +9,18 @@
 #include "ecc.h"
 
 
-int mod(int num, int mod) {
-    int ret = num % mod;
+int mod(int num, int modulo) {
+    int ret = num % modulo;
     if (ret < 0)
-        ret += mod;
+        ret += modulo;
 
     return ret;
 }
 
-int mod_inverse(int num, int mod) {
+int mod_inverse(int num, int modulo) {
     int num_coeff, mod_coeff;
-    egcd(num, mod, &num_coeff, &mod_coeff);
+    num = mod(num, modulo);
+    egcd(num, modulo, &num_coeff, &mod_coeff);
 
     return num_coeff;
 }

@@ -32,14 +32,21 @@ int main(int argc, char * argv[])
     point_add(&p1, &p2, &sum, &E);
     printf("\t%s + %s = %s\n", point_str(&p1), point_str(&p2), point_str(&sum));
 
-    // 2P + P
+    // 6P + 6P
+    p1 = (point){16, 13};
+    p2 = (point){16, 13};
+    point_add(&p1, &p2, &sum, &E);
+    printf("\t%s + %s = %s\n", point_str(&p1), point_str(&p2), point_str(&sum));
+
+    // P + 2P
+    p1 = (point){5, 1};
     p2 = (point){6, 3};
     point_add(&p1, &p2, &sum, &E);
     printf("\t%s + %s = %s\n", point_str(&p1), point_str(&p2), point_str(&sum));
 
-    // 6P + 6P
-    p1 = (point){16, 13};
-    p2 = (point){16, 13};
+    // 2P + P
+    p1 = (point){6, 3};
+    p2 = (point){5, 1};
     point_add(&p1, &p2, &sum, &E);
     printf("\t%s + %s = %s\n", point_str(&p1), point_str(&p2), point_str(&sum));
 
