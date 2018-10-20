@@ -3,12 +3,15 @@
     10-17-2018
 
     ecc.h - Header for ECC functions
-*/
+ */
 
 #define _GNU_SOURCE
 #include "ecc.h"
 
 
+/*
+ * Compute the modular of num, ensuring that num is non-negative
+ */
 int mod(int num, int modulo) {
     int ret = num % modulo;
     if (ret < 0)
@@ -17,14 +20,22 @@ int mod(int num, int modulo) {
     return ret;
 }
 
-int mod_inverse(int num, int modulo) {
+/*
+ * Compute the modular multiplicate inverse of a number using
+ * the extended Euclidean algorithm
+ */
+int mod_inverse(int num, int modulus) {
     int num_coeff, mod_coeff;
-    num = mod(num, modulo);
-    egcd(num, modulo, &num_coeff, &mod_coeff);
+    // Ensure num is in [0, modulus)
+    num = mod(num, modulus);
+    egcd(num, modulus, &num_coeff, &mod_coeff);
 
     return num_coeff;
 }
 
+/*
+ * Determine if two points are equal
+ */
 bool point_equal(point *p1, point *p2) {
     if (p1->at_inf && p2->at_inf)
         return true;
@@ -34,19 +45,32 @@ bool point_equal(point *p1, point *p2) {
     return p1->x == p2->x && p1->y == p2->y;
 }
 
-bool point_inverse(point *p1, point *p2, int mod) {
+/*
+ * Determine if two points are inverse to eachother given a modulus
+ */
+bool point_inverse(point *p1, point *p2, int modulus) {
     if (p1->at_inf || p2->at_inf)
         return false;
 
-    return p1->x == p2->x && p1->y == (mod - p2->y);
+    return p1->x == p2->x && p1->y == (modulus - p2->y);
 }
 
+/*
+ * Perform a deep copy between two points
+ */
 void point_copy(point *copy, point *src) {
     copy->x = src->x;
     copy->y = src->y;
     copy->at_inf = src->at_inf;
 }
 
+/*
+ * Format a string to represent the point such that:
+ *      (int, int) -> Any point on the curve
+ *      Inf        -> The point at infinity
+ *
+ * Returns the new string
+ */
 char* point_str(point *P) {
     char *str;
     if (P->at_inf)
@@ -57,6 +81,13 @@ char* point_str(point *P) {
     return str;
 }
 
+/*
+ * Computes point addition/doubling for an elliptic curve
+ *
+ * p1, p2 -> The points to compute
+ * sum    -> Where the point addition is stored
+ * E      -> The elliptic curve
+ */
 void point_add(point *p1, point *p2, point *sum, ecurve *E) {
     int s, x, y;
 
@@ -90,19 +121,29 @@ void point_add(point *p1, point *p2, point *sum, ecurve *E) {
     sum->at_inf = false;
 }
 
+/*
+ * Function to compute the multiplication of a point using
+ * the double and add algorithm
+ *
+ * P   -> The point being multiplied
+ * sum -> Where the result is stored
+ * E   -> The elliptic curve
+ * num -> The amount of additions to perform
+ */
 void double_and_add(point *P, point *sum, ecurve *E, int num) {
-    char buffer[65];
+    char buffer[65], *ptr;
+
+    // Store the bit representation of num in buffer
     itoa(num, buffer, 2);
     point_copy(sum, P);
 
-    int i = 1;
-    // printf("\t\tsum = %s\n", point_str(sum));
-    while (buffer[i] != '\0') {
+    // Start at the second point
+    ptr = &buffer[1];
+    while (*ptr != '\0') {
         point_add(sum, sum, sum, E);
-        if (buffer[i] == '1')
+        if (*ptr == '1')
             point_add(P, sum, sum, E);
-        // printf("\t\tsum = %s\n", point_str(sum));
-        ++i;
+        ptr++;
     }
 }
 
